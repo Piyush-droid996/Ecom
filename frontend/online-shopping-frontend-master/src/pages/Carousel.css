@@ -1,0 +1,16 @@
+.Main {
+    width: 100%; /* Ensure it takes up full width */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .carousel-image {
+    height: 400px; /* Adjust the height as needed */
+    object-fit: cover; /* Ensures the image scales proportionally */
+  }
+  
+  .carousel-inner {
+    max-height: 400px; /* Keep the overall height consistent */
+  }
+  

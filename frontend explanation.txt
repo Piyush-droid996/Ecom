@@ -1,0 +1,159 @@
+Frontend Flow
+
+1. Routing and Navigation
+RoleNav:
+Dynamically determines the type of user (Customer, Admin, Delivery Person, or Guest).
+Displays appropriate header components (HeaderUser, AdminHeader, DeliveryPersonHeader, or NormalHeader) based on the session data (active-user, active-admin, active-delivery).
+
+
+
+
+2. Home Page (HomePage)
+Purpose: Displays all products or products filtered by category, along with a carousel and category sidebar.
+Key Functionalities:
+Fetches:
+All products if no categoryId is provided.
+Products of a specific category when categoryId is present in the URL.
+Contains components:
+Carousel: Displays a carousel at the top.
+GetAllCategories: Fetches and displays product categories in a sidebar.
+ProductCard: Renders individual product details in a grid layout.
+Uses Axios to interact with APIs:
+GET /api/product/all for all products.
+GET /api/product/category/fetch?categoryId={categoryId} for products in a specific category.
+Rendered UI:
+Carousel at the top.
+Two-column layout:
+Left: Category navigation.
+Right: Product grid.
+
+
+3. Product Page (Product)
+Purpose: Displays detailed information for a selected product and its related products.
+Key Functionalities:
+Fetches:
+Specific product details using productId:
+GET /api/product/id?productId={productId}.
+Related products by category:
+GET /api/product/category/fetch?categoryId={categoryId}.
+Handles cart functionality:
+Adds the product to the cart:
+POST /api/cart/add with user ID, product ID, and quantity.
+Contains components:
+GetAllCategories: Category sidebar.
+ProductCard: Displays related products in a grid layout.
+Form validation and error handling:
+Ensures user login before allowing the addition to the cart.
+Uses ToastContainer to show success/error messages.
+Dynamic UI:
+Two-column layout for product image and details.
+Related products listed below the main product details.
+4. Header Management (NormalHeader, RoleNav)
+NormalHeader:
+For guests: Provides links for user registration and login (/user/customer/register and /user/login).
+RoleNav:
+Dynamically determines the header to display:
+HeaderUser for logged-in users.
+AdminHeader for admins.
+DeliveryPersonHeader for delivery persons.
+Defaults to NormalHeader for guests.  
+
+-----------------------------
+
+
+
+
+4. Header Management (NormalHeader, RoleNav)
+NormalHeader:
+For guests: Provides links for user registration and login (/user/customer/register and /user/login).
+RoleNav:
+Dynamically determines the header to display:
+HeaderUser for logged-in users.
+AdminHeader for admins.
+DeliveryPersonHeader for delivery persons.
+Defaults to NormalHeader for guests.
+
+
+-------------------------------------------------
+5. API Interaction
+APIs:
+/api/product/all: Fetch all products.
+/api/product/category/fetch: Fetch products by category.
+/api/product/id: Fetch product details.
+/api/cart/add: Add product to the cart.
+/api/product/image/{imageName}: Fetch product images.
+Libraries Used:
+Axios: For handling HTTP requests.
+Fetch: For POST requests in the cart addition process.
+
+
+-----------------------------------------------------
+6. Cart Functionality
+Adding to Cart:
+Validates if a user is logged in (checks session storage for active-user).
+Sends a POST request to add the product with the specified quantity.
+Error Handling:
+Alerts if the user is not logged in.
+Displays error messages for failed server interactions.
+
+
+----------------------------------------------------------
+
+
+7. Components Overview
+Carousel: A reusable component to display a sliding banner.
+GetAllCategories: Lists all categories in the sidebar for filtering.
+ProductCard: A reusable component to display individual product information (e.g., title, image, price).
+ToastContainer: Used for user notifications.
+Dynamic Headers (HeaderUser, AdminHeader, etc.):
+Custom navigation for each user role.
+
+
+---------------------------
+8. Dynamic User Roles
+Application dynamically adapts based on user roles stored in session storage:
+Guest: Access limited to browsing products and categories.
+Logged-in User: Can add products to the cart and navigate to the cart page.
+Admin: Granted access to admin-specific functionalities (not detailed here).
+Delivery Person: Displays navigation relevant to delivery tasks.
+
+------------------------
+
+
+
+Detailed Workflow Explanation
+1. User Navigation
+Role-based Navigation:
+Based on the user's role (user, admin, deliveryPerson), the RoleNav component dynamically renders the appropriate header (HeaderUser, AdminHeader, DeliveryPersonHeader, or NormalHeader).
+Users without a session token are directed to either the registration or login pages through the NormalHeader.
+2. Homepage Display
+The HomePage component:
+Fetches either all products or products by category using axios calls, depending on whether a categoryId is provided via the route parameter.
+Displays categories using GetAllCategories.
+Shows a grid of product cards (ProductCard) using the retrieved product data.
+3. Product Details
+When a product card is clicked:
+The Product component is rendered based on the productId and categoryId.
+Fetches:
+Product details using retrieveProduct.
+Related products in the same category using retrieveProductsByCategory.
+Displays:
+Product image, description, price, and stock.
+A form to add the product to the cart (Add to Cart).
+Cart Handling:
+If the user is not logged in, they are prompted to log in before adding items to the cart.
+Otherwise:
+The product is added to the cart via a POST request to http://localhost:8080/api/cart/add with userToken.
+4. Category Navigation
+GetAllCategories:
+Lists all available product categories.
+Clicking a category fetches products for that category via retrieveProductsByCategory.
+5. Authentication
+Login/Registration:
+Registration (/user/customer/register) and login (/user/login) are accessible through NormalHeader.
+On successful login, user-specific headers and functionality are loaded dynamically.
+6. Admin and Delivery Roles
+Admin:
+Navigates to a separate AdminHeader for admin-specific actions (not detailed in the provided files but expected to include inventory management, etc.).
+Delivery Person:
+Navigates to DeliveryPersonHeader for delivery-specific actions (e.g., order tracking).
