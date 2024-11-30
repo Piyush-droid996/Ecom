@@ -300,59 +300,132 @@ const Product = () => {
     return response.data;
   };
 
-  const saveProductToCart = (userId) => {
-    fetch("http://localhost:8080/api/cart/add", {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${userToken}`,
-      },
-      body: JSON.stringify({
-        quantity: quantity,
-        userId: userId,
-        productId: productId,
-      }),
-    })
-      .then((result) => {
-        result.json().then((res) => {
-          if (res.success) {
-            toast.success(res.responseMessage, {
-              position: "top-center",
-              autoClose: 1000,
-              hideProgressBar: false,
-              closeOnClick: true,
-              pauseOnHover: true,
-              draggable: true,
-            });
+  // const saveProductToCart = (userId) => {
+  //   fetch("http://localhost:8080/api/cart/add", {
+  //     method: "POST",
+  //     headers: {
+  //       Accept: "application/json",
+  //       "Content-Type": "application/json",
+  //       Authorization: `Bearer ${userToken}`,
+  //     },
+  //     body: JSON.stringify({
+  //       quantity: quantity,
+  //       userId: userId,
+  //       productId: productId,
+  //     }),
+  //   })
+  //     .then((result) => {
+  //       result.json().then((res) => {
+  //         if (res.success) {
+  //           toast.success(res.responseMessage, {
+  //             position: "top-center",
+  //             autoClose: 1000,
+  //             hideProgressBar: false,
+  //             closeOnClick: true,
+  //             pauseOnHover: true,
+  //             draggable: true,
+  //           });
 
-            setTimeout(() => {
-              navigate("/user/mycart");
-            }, 2000);
-          } else {
-            toast.error(res.responseMessage, {
-              position: "top-center",
-              autoClose: 1000,
-              hideProgressBar: false,
-              closeOnClick: true,
-              pauseOnHover: true,
-              draggable: true,
-            });
-          }
-        });
-      })
-      .catch((error) => {
-        console.error(error);
-        toast.error("It seems server is down", {
+  //           setTimeout(() => {
+  //             navigate("/user/mycart");
+  //           }, 2000);
+  //         } else {
+  //           toast.error(res.responseMessage, {
+  //             position: "top-center",
+  //             autoClose: 1000,
+  //             hideProgressBar: false,
+  //             closeOnClick: true,
+  //             pauseOnHover: true,
+  //             draggable: true,
+  //           });
+  //         }
+  //       });
+  //     })
+  //     .catch((error) => {
+  //       console.error(error);
+  //       toast.error("It seems server is down", {
+  //         position: "top-center",
+  //         autoClose: 1000,
+  //         hideProgressBar: false,
+  //         closeOnClick: true,
+  //         pauseOnHover: true,
+  //         draggable: true,
+  //       });
+  //     });
+  // };
+
+  const saveProductToCart = async (userId) => {
+    try {
+      // Add product to cart
+      const cartResponse = await fetch("http://localhost:8080/api/cart/add", {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${userToken}`, // Add Authorization header
+        },
+        body: JSON.stringify({
+          quantity: quantity,
+          userId: userId,
+          productId: productId,
+        }),
+      });
+ 
+      const cartResult = await cartResponse.json();
+ 
+      if (!cartResult.success) {
+        throw new Error(cartResult.responseMessage || "Failed to add product to cart.");
+      }
+ 
+      // Calculate the new stock
+      const updatedQuantity = product.quantity - quantity;
+ 
+      // Update stock with PATCH request
+      const patchResponse = await axios.patch(
+        `http://localhost:8080/api/product/update/${productId}/quantity`,
+        { quantity: updatedQuantity }, // Send as JSON body
+        {
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${userToken}`, // Add Authorization header
+          },
+        }
+      );
+        // Refresh stock data in the frontend
+        setProduct((prevProduct) => ({
+          ...prevProduct,
+          quantity: updatedQuantity,
+        }));
+ 
+        toast.success("Stock updated successfully!", {
           position: "top-center",
           autoClose: 1000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
         });
+ 
+        // Redirect after success
+        setTimeout(() => {
+          navigate("/user/mycart");
+        }, 2000);
+     
+    } catch (error) {
+      console.error("Error occurred:", error.response || error);
+ 
+      // Fallback error message
+      const errorMessage = error.response?.data?.message || "Something went wrong with the server.";
+ 
+      toast.error(errorMessage, {
+        position: "top-center",
+        autoClose: 1000,
       });
+    }
   };
+
+
+
+
+
+
 
   const addToCart = (e) => {
     e.preventDefault();

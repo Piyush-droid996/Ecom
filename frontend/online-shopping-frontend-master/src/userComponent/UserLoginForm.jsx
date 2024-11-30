@@ -127,9 +127,9 @@ const UserLoginForm = () => {
                     required
                   >
                     <option value="0">Select Role</option>
-                    <option value="Admin"> Admin </option>
+                    {/* <option value="Admin"> Admin </option> */}
                     <option value="Customer"> Customer </option>
-                    <option value="Delivery"> Delivery Person </option>
+                    {/* <option value="Delivery"> Delivery Person </option> */}
                   </select>
                 </div>
 

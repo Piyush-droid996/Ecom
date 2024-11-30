@@ -3,11 +3,14 @@ package com.ecommerce.product.controller;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,6 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.ecommerce.product.dto.CommonApiResponse;
 import com.ecommerce.product.dto.ProductAddRequest;
 import com.ecommerce.product.dto.ProductResponse;
+import com.ecommerce.product.dto.UpdateQuantityRequest;
+import com.ecommerce.product.model.Product;
 import com.ecommerce.product.resource.ProductResource;
 
 @RestController
@@ -36,7 +41,7 @@ public class ProductController {
 	}
 
 	@GetMapping("id")
-	public ResponseEntity<ProductResponse> getProductById(@RequestParam("productId") int productId) {
+	public ResponseEntity<ProductResponse> getProductById(@RequestParam("productId") Long productId) {
 		return this.productResource.getProductById(productId);
 	}
 
@@ -49,5 +54,27 @@ public class ProductController {
 	public void fetchProductImage(@PathVariable("productImageName") String productImageName, HttpServletResponse resp) {
 		this.productResource.fetchProductImage(productImageName, resp);
 	}
+	
+	@PatchMapping("update/{productId}/quantity")
+    public ResponseEntity<?> updateTotalRooms(@PathVariable("productId") Long productId,
+                                              @RequestBody UpdateQuantityRequest request) {
+        try {
+            // Call the service to update the quantity
+            Product updatedProduct = productResource.updateTotalRooms(productId, request.getQuantity());
+ 
+            if (updatedProduct == null) {
+                // Return a 404 response if the product is not found
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                                     .body("Product not found with ID: " + productId);
+            }
+ 
+            // Return the updated product
+            return ResponseEntity.ok(updatedProduct);
+        } catch (Exception e) {
+            // Handle unexpected errors
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body("An error occurred: " + e.getMessage());
+        }
+    }
 
 }

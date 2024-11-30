@@ -125,7 +125,7 @@ public class ProductResource {
 		return new ResponseEntity<ProductResponse>(response, HttpStatus.OK);
 	}
 
-	public ResponseEntity<ProductResponse> getProductById(int productId) {
+	public ResponseEntity<ProductResponse> getProductById(Long productId) {
 		ProductResponse response = new ProductResponse();
 
 		if (productId == 0) {
@@ -211,6 +211,19 @@ public class ProductResource {
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	public Product updateTotalRooms(Long productId, Integer quantity) {
+	    // Find hotel by ID
+	    Product product = productDao.findById(productId).orElse(null);
+	    
+	    if (product == null) {
+	        return null; // Return null if the hotel is not found
+	    }
+ 
+	    // Update totalRooms and save
+	    product.setQuantity(quantity);
+	    return productDao.save(product);
 	}
 
 }
